@@ -1,6 +1,6 @@
-from sqlmodel import Session
+from sqlmodel import Session, select
 
-from .database import engine
+from .db import engine
 from .models import Hero
 
 
@@ -21,3 +21,10 @@ def create_heroes():
         session.refresh(hero_1)
         session.refresh(hero_2)
         session.refresh(hero_3)
+
+
+def select_heroes():
+    with Session(engine) as session:
+        statement = select(Hero)
+        heroes = session.exec(statement).all()
+        print(heroes)

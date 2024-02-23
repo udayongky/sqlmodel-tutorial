@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel
 
-from .database import engine
-from .seeders import create_heroes
+from .db import engine
+from .crud import create_heroes, select_heroes
 
 
 def create_db_and_tables():
@@ -11,6 +11,7 @@ def create_db_and_tables():
 def main():
     create_db_and_tables()
     create_heroes()
+    select_heroes()
 
 
 if __name__ == "__main__":
