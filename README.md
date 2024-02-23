@@ -1,3 +1,3 @@
-# Rye-init
+# SQLModel Tutorial
 
 Describe your project here.

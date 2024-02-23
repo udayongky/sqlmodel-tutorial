@@ -33,6 +33,28 @@ def create_heroes():
 
 def select_heroes():
     with Session(engine) as session:
-        statement = select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
+        # statement = select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
+
+        # Select with Offset to skip rows and Limit to limit the results
+        statement = select(Hero).offset(3).limit(3)
+
+        # iterate over results
+        # results = session.exec(statement)
+        # for hero in results:
+        #     print(hero)
+
+        # return a list
         heroes = session.exec(statement).all()
         print(heroes)
+
+        # read first row
+        # hero = session.exec(statement).first()
+        # print(hero)
+
+        # exactly one row matching
+        # hero = session.exec(statement).one()
+        # print(hero)
+
+        # select by id
+        hero = session.get(Hero, 1)
+        print(hero)
