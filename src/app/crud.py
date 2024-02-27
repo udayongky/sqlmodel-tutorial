@@ -1,63 +1,64 @@
 from sqlmodel import Session, or_, select
 
 from .db import engine
-from .models import Hero
+from .models import Hero, Team
 
 
 def create_heroes():
-    hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")
-    hero_2 = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
-    hero_3 = Hero(name="Rusty-Man", secret_name="Tommy Sharp", age=48)
-    hero_4 = Hero(name="Tarantula", secret_name="Natalia Roman-on", age=32)
-    hero_5 = Hero(name="Black Lion", secret_name="Trevor Challa", age=35)
-    hero_6 = Hero(name="Dr. Weird", secret_name="Steve Weird", age=36)
-    hero_7 = Hero(name="Captain North America", secret_name="Esteban Rogelios", age=93)
-
     with Session(engine) as session:
-        session.add(hero_1)
-        session.add(hero_2)
-        session.add(hero_3)
-        session.add(hero_4)
-        session.add(hero_5)
-        session.add(hero_6)
-        session.add(hero_7)
-
-        # save all the data to the database
+        team_preventers = Team(name="Preventers", headquarters="Sharp Tower")
+        team_z_force = Team(name="Z-Force", headquarters="Sister Margaret's Bar")
+        session.add(team_preventers)
+        session.add(team_z_force)
         session.commit()
 
-        # fetch fresh data from the database
-        session.refresh(hero_1)
-        session.refresh(hero_2)
-        session.refresh(hero_3)
+        hero_deadpond = Hero(
+            name="Deadpond", secret_name="Dive Wilson", team_id=team_z_force.id
+        )
+        hero_rusty_man = Hero(
+            name="Rusty-Man",
+            secret_name="Tommy Sharp",
+            age=48,
+            team_id=team_preventers.id,
+        )
+        hero_spider_boy = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+        session.add(hero_deadpond)
+        session.add(hero_rusty_man)
+        session.add(hero_spider_boy)
+        session.commit()
+
+        session.refresh(hero_deadpond)
+        session.refresh(hero_rusty_man)
+        session.refresh(hero_spider_boy)
+
+        print("Created hero:", hero_deadpond)
+        print("Created hero:", hero_rusty_man)
+        print("Created hero:", hero_spider_boy)
 
 
 def select_heroes():
     with Session(engine) as session:
-        # statement = select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
+        # Select related table using where()
+        # `WHERE hero.team_id = team.id`
+        # statement = select(Hero, Team).where(Hero.team_id == Team.id)
 
-        # Select with Offset to skip rows and Limit to limit the results
-        statement = select(Hero).offset(3).limit(3)
+        # Select related table using join()
+        # `JOIN team ON hero.team_id = team.id`
+        # statement = select(Hero, Team).join(Team)
 
-        # iterate over results
+        # Include everything on left table
+        # `LEFT OUTER JOIN team ON hero.team_id = team.id`
+        statement = select(Hero, Team).join(Team, isouter=True)
+
+        results = session.exec(statement)
+        for hero, team in results:
+            print("Hero:", hero, "Team:", team)
+
+        # Select only left table but filter the rows with right table
+        # statement = select(Hero).join(Team).where(Team.name == "Preventers")
         # results = session.exec(statement)
         # for hero in results:
-        #     print(hero)
-
-        # return a list
-        heroes = session.exec(statement).all()
-        print(heroes)
-
-        # read first row
-        # hero = session.exec(statement).first()
-        # print(hero)
-
-        # exactly one row matching
-        # hero = session.exec(statement).one()
-        # print(hero)
-
-        # select by id
-        hero = session.get(Hero, 1)
-        print(hero)
+        #     print("Preventer Hero:", hero)
 
 
 def update_heroes():
