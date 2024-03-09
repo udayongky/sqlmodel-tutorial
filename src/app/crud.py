@@ -38,27 +38,14 @@ def create_heroes():
 
 def select_heroes():
     with Session(engine) as session:
-        # Select related table using where()
-        # `WHERE hero.team_id = team.id`
-        # statement = select(Hero, Team).where(Hero.team_id == Team.id)
+        statement = select(Hero).where(Hero.name == "Deadpond")
+        result = session.exec(statement)
+        hero_deadpond = result.one()
 
-        # Select related table using join()
-        # `JOIN team ON hero.team_id = team.id`
-        # statement = select(Hero, Team).join(Team)
-
-        # Include everything on left table
-        # `LEFT OUTER JOIN team ON hero.team_id = team.id`
-        statement = select(Hero, Team).join(Team, isouter=True)
-
-        results = session.exec(statement)
-        for hero, team in results:
-            print("Hero:", hero, "Team:", team)
-
-        # Select only left table but filter the rows with right table
-        # statement = select(Hero).join(Team).where(Team.name == "Preventers")
-        # results = session.exec(statement)
-        # for hero in results:
-        #     print("Preventer Hero:", hero)
+        statement = select(Team).where(Team.id == hero_deadpond.team_id)
+        result = session.exec(statement)
+        team = result.first()
+        print("Deadpond's team:", team)
 
 
 def update_heroes():
@@ -99,7 +86,7 @@ def delete_heroes():
 
         print("Deleted hero:", hero_spider_boy)
 
-        # Check deleted hero
+        # Check deleted
         statement = select(Hero).where(Hero.name == "Spider-Boy")
         results = session.exec(statement)
         hero = results.first()
