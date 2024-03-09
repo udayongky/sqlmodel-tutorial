@@ -6,18 +6,23 @@ from .models import Hero, Team
 
 def create_heroes():
     with Session(engine) as session:
-        # Create Instances with Relationship Attributes
-        # One to Many using `team` relationship
         team_preventers = Team(name="Preventers", headquarters="Sharp Tower")
         team_z_force = Team(name="Z-Force", headquarters="Sister Margaret's Bar")
 
         hero_deadpond = Hero(
-            name="Deadpond", secret_name="Dive Wilson", team=team_z_force
+            name="Deadpond",
+            secret_name="Dive Wilson",
+            teams=[team_z_force, team_preventers],
         )
         hero_rusty_man = Hero(
-            name="Rusty-Man", secret_name="Tommy Sharp", age=48, team=team_preventers
+            name="Rusty-Man",
+            secret_name="Tommy Sharp",
+            age=48,
+            teams=[team_preventers],
         )
-        hero_spider_boy = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+        hero_spider_boy = Hero(
+            name="Spider-Boy", secret_name="Pedro Parqueador", teams=[team_preventers]
+        )
         session.add(hero_deadpond)
         session.add(hero_rusty_man)
         session.add(hero_spider_boy)
@@ -27,43 +32,12 @@ def create_heroes():
         session.refresh(hero_rusty_man)
         session.refresh(hero_spider_boy)
 
-        print("Created hero:", hero_deadpond)
-        print("Created hero:", hero_rusty_man)
-        print("Created hero:", hero_spider_boy)
-
-        # Create a Team with Heroes
-        # Many to One using `heroes` relationship
-        hero_black_lion = Hero(name="Black Lion", secret_name="Trevor Challa", age=35)
-        hero_sure_e = Hero(name="Princess Sure-E", secret_name="Sure-E")
-        team_wakaland = Team(
-            name="Wakaland",
-            headquarters="Wakaland Capital City",
-            heroes=[hero_black_lion, hero_sure_e],
-        )
-        session.add(team_wakaland)
-        session.commit()
-        session.refresh(team_wakaland)
-        print("Team Wakaland:", team_wakaland)
-
-        # Include Relationship Objects in the Many Side
-        # Many to One
-        hero_tarantula = Hero(name="Tarantula", secret_name="Natalia Roman-on", age=32)
-        hero_dr_weird = Hero(name="Dr. Weird", secret_name="Steve Weird", age=36)
-        hero_cap = Hero(
-            name="Captain North America", secret_name="Esteban Rogelios", age=93
-        )
-
-        team_preventers.heroes.append(hero_tarantula)
-        team_preventers.heroes.append(hero_dr_weird)
-        team_preventers.heroes.append(hero_cap)
-        session.add(team_preventers)
-        session.commit()
-        session.refresh(hero_tarantula)
-        session.refresh(hero_dr_weird)
-        session.refresh(hero_cap)
-        print("Preventers new hero:", hero_tarantula)
-        print("Preventers new hero:", hero_dr_weird)
-        print("Preventers new hero:", hero_cap)
+        print("Deadpond:", hero_deadpond)
+        print("Deadpond teams:", hero_deadpond.teams)
+        print("Rusty-Man:", hero_rusty_man)
+        print("Rusty-Man Teams:", hero_rusty_man.teams)
+        print("Spider-Boy:", hero_spider_boy)
+        print("Spider-Boy Teams:", hero_spider_boy.teams)
 
 
 def select_heroes():
@@ -86,22 +60,23 @@ def update_heroes():
         session.add(team_z_force)
         session.commit()
 
-        session.refresh(hero_spider_boy)
-        print("Updated hero:", hero_spider_boy)
+        print("Updated Spider-Boy's Teams:", hero_spider_boy.teams)
+        print("Z-Force heroes:", team_z_force.heroes)
 
 
 def remove_heroes():
     with Session(engine) as session:
-        statement = select(Hero).where(Hero.name == "Spider-Boy")
-        result = session.exec(statement)
-        hero_spider_boy = result.one()
+        hero_spider_boy = session.exec(
+            select(Hero).where(Hero.name == "Spider-Boy")
+        ).one()
+        team_z_force = session.exec(select(Team).where(Team.name == "Z-Force")).one()
 
-        hero_spider_boy.team = None
-        session.add(hero_spider_boy)
+        hero_spider_boy.teams.remove(team_z_force)
+        session.add(team_z_force)
         session.commit()
 
-        session.refresh(hero_spider_boy)
-        print("Spider-Boy without team:", hero_spider_boy)
+        print("Reverted Z-Force's heroes:", team_z_force.heroes)
+        print("Reverted Spider-Boy's teams:", hero_spider_boy.teams)
 
 
 def delete_heroes():
