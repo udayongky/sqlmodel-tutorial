@@ -82,8 +82,8 @@ def update_heroes():
         ).one()
         team_z_force = session.exec(select(Team).where(Team.name == "Z-Force")).one()
 
-        team_z_force.heroes.append(hero_spider_boy)
-        session.add(team_z_force)
+        hero_spider_boy.team = team_z_force
+        session.add(hero_spider_boy)
         session.commit()
 
         session.refresh(hero_spider_boy)
