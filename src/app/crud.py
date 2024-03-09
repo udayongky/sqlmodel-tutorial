@@ -63,44 +63,46 @@ def select_heroes():
 
 def update_heroes():
     with Session(engine) as session:
-        statement = (
-            select(Hero, Team).join(Team, isouter=True).where(Hero.name == "Spider-Boy")
-        )
-        results = session.exec(statement)
-        hero = results.one()
-        print("Hero: ", hero)
+        hero_spider_boy = session.exec(
+            select(Hero).where(Hero.name == "Spider-Boy")
+        ).one()
+        team_z_force = session.exec(select(Team).where(Team.name == "Z-Force")).one()
 
-        hero.team_id = team_preventers.id
+        hero_spider_boy.team_id = team_z_force.id
         session.add(hero_spider_boy)
         session.commit()
         session.refresh(hero_spider_boy)
         print("Updated hero:", hero_spider_boy)
 
-        # hero_1.age = 16
-        # hero_1.name = "Spider-Youngster"
-        # session.add(hero_1)
 
-        # session.commit()
-        # session.refresh(hero_1)
+def remove_heroes():
+    with Session(engine) as session:
+        hero_spider_boy = session.exec(
+            select(Hero).where(Hero.name == "Spider-Boy")
+        ).one()
 
-        # print("Updated hero 1:", hero_1)
+        hero_spider_boy.team_id = None
+        session.add(hero_spider_boy)
+        session.commit()
+        session.refresh(hero_spider_boy)
+        print("No Z force:", hero_spider_boy)
 
 
 def delete_heroes():
     with Session(engine) as session:
-        statement = select(Hero).where(Hero.name == "Spider-Boy")
-        results = session.exec(statement)
-        hero = results.one()
-        print("Hero: ", hero)
+        hero_spider_boy = session.exec(
+            select(Hero).where(Hero.name == "Spider-Boy")
+        ).one()
 
-        session.delete(hero)
+        session.delete(hero_spider_boy)
         session.commit()
 
-        print("Deleted hero:", hero)
+        print("Deleted hero:", hero_spider_boy)
 
-        statement = select(Hero).where(Hero.name == "Spider-Youngster")
+        # Check deleted hero
+        statement = select(Hero).where(Hero.name == "Spider-Boy")
         results = session.exec(statement)
         hero = results.first()
 
         if hero is None:
-            print("There's no hero named Spider-Youngster")
+            print("There's no hero named Spider-Boy")
