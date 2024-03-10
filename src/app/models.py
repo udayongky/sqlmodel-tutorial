@@ -1,21 +1,25 @@
 from sqlmodel import Field, SQLModel
 
 
-class Hero(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class HeroBase(SQLModel):
     name: str = Field(index=True)
     secret_name: str
     age: int | None = Field(default=None, index=True)
 
 
-class HeroCreate(SQLModel):
-    name: str
-    secret_name: str
-    age: int | None = None
+class Hero(HeroBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
 
 
-class HeroRead(SQLModel):
+class HeroCreate(HeroBase):
+    pass
+
+
+class HeroRead(HeroBase):
     id: int
-    name: str
-    secret_name: str
+
+
+class HeroUpdate(SQLModel):
+    name: str | None = None
+    secret_name: str | None = None
     age: int | None = None
