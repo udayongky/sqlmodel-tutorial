@@ -1,27 +1,20 @@
+from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from .crud import (
-    create_heroes,
-    delete_heroes,
-    remove_heroes,
-    select_heroes,
-    update_heroes,
-)
 from .db import engine
+from .routes import heroes
 
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-def main():
+app = FastAPI()
+
+
+@app.on_event("startup")
+def on_startup():
     create_db_and_tables()
-    create_heroes()
-    select_heroes()
-    update_heroes()
-    remove_heroes()
-    delete_heroes()
 
 
-if __name__ == "__main__":
-    main()
+app.include_router(heroes.router)
