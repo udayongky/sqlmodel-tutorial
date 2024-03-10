@@ -7,7 +7,7 @@ from ..models import Hero
 router = APIRouter()
 
 
-@router.post("/heroes/")
+@router.post("/heroes/", response_model=Hero)
 def create_hero(hero: Hero):
     with Session(engine) as session:
         session.add(hero)
@@ -16,7 +16,7 @@ def create_hero(hero: Hero):
         return hero
 
 
-@router.get("/heroes/")
+@router.get("/heroes/", response_model=list[Hero])
 def read_heroes():
     with Session(engine) as session:
         heroes = session.exec(select(Hero)).all()
