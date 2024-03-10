@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
@@ -9,12 +11,13 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-app = FastAPI()
-
-
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     create_db_and_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(heroes.router)

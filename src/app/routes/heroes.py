@@ -2,18 +2,19 @@ from fastapi import APIRouter
 from sqlmodel import Session, select
 
 from ..db import engine
-from ..models import Hero
+from ..models import Hero, HeroCreate, HeroRead
 
 router = APIRouter()
 
 
-@router.post("/heroes/", response_model=Hero)
-def create_hero(hero: Hero):
+@router.post("/heroes/", response_model=HeroRead)
+def create_hero(hero: HeroCreate):
     with Session(engine) as session:
-        session.add(hero)
+        db_hero = Hero.model_validate(hero)
+        session.add(db_hero)
         session.commit()
-        session.refresh(hero)
-        return hero
+        session.refresh(db_hero)
+        return db_hero
 
 
 @router.get("/heroes/", response_model=list[Hero])
