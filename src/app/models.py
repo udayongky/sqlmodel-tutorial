@@ -25,3 +25,8 @@ class HeroUpdate(SQLModel):
     secret_name: str | None = None
     age: int | None = None
     password: str | None = None
+
+
+# Generic message
+class Message(SQLModel):
+    message: str
