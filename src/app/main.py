@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from .db import engine
-from .routes import heroes
+from app.db import engine
+from app.routes import heroes, team
 
 
 def create_db_and_tables():
@@ -31,3 +31,4 @@ app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(heroes.router)
+app.include_router(team.router)

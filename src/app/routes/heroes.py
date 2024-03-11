@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
 from app.deps import SessionDep
-from app.models import Hero, HeroCreate, HeroRead, HeroUpdate, Message
+from app.models import Hero, HeroCreate, HeroRead, HeroReadWithTeam, HeroUpdate, Message
 from app.security import get_password_hash
 
 router = APIRouter()
@@ -31,7 +31,7 @@ def read_heroes(
     return heroes
 
 
-@router.get("/heroes/{hero_id}", response_model=HeroRead)
+@router.get("/heroes/{hero_id}", response_model=HeroReadWithTeam)
 def read_hero(session: SessionDep, hero_id: int) -> Any:
     hero = session.get(Hero, hero_id)
     if not hero:
